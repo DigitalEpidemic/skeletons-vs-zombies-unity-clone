@@ -8,6 +8,7 @@ public class PlayerScript : MonoBehaviour {
     [SerializeField] private float shootDistance = 10f;
     private float nextFire;
     private float shootRate = 2f;
+    private bool isAttacking = false;
 
     private Transform targetedEnemy;
     bool enemyClicked;
@@ -34,6 +35,7 @@ public class PlayerScript : MonoBehaviour {
                     enemyClicked = true;
 
                 } else {
+                    isAttacking = false;
                     running = true;
                     enemyClicked = false;
                     // Walk to point
@@ -50,7 +52,9 @@ public class PlayerScript : MonoBehaviour {
         if (navAgent.remainingDistance <= navAgent.stoppingDistance) {
             running = false;
         } else {
-            running = true;
+            if (!isAttacking) {
+                running = true;
+            }
         }
 
         anim.SetBool ("isRunning", running);
@@ -74,6 +78,7 @@ public class PlayerScript : MonoBehaviour {
 
             // Sets time between attacks
             if (Time.time > nextFire) {
+                isAttacking = true;
                 nextFire = Time.time + shootRate;
                 Fire ();
             }
@@ -83,7 +88,8 @@ public class PlayerScript : MonoBehaviour {
     }
 
     void Fire () {
-        print ("FIRE!!");
+        anim.SetTrigger ("Attack");
+        //print ("FIRE!!");
     }
 
 } // PlayerScript

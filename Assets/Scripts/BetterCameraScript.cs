@@ -8,7 +8,7 @@ public class BetterCameraScript : MonoBehaviour {
     private Transform target;
     public Vector3 offset = new Vector3 (0f, 0.6f, -0.5f);
     private bool justStarted;
-    private float panSpeed = 2f;
+    public float panSpeed = 4f;
 
     void Awake () {
         target = GameObject.Find ("Player").transform;
