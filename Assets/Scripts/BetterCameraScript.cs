@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class BetterCameraScript : MonoBehaviour {
+public class BetterCameraScript : NetworkBehaviour {
 
     private Transform myTransform;
     private Transform target;
@@ -11,7 +12,7 @@ public class BetterCameraScript : MonoBehaviour {
     public float panSpeed = 4f;
 
     void Awake () {
-        target = GameObject.Find ("Player").transform;
+        //target = GameObject.FindGameObjectWithTag ("Player").transform;
         justStarted = true;
         LockMouse ();
     }
@@ -20,8 +21,15 @@ public class BetterCameraScript : MonoBehaviour {
         myTransform = this.transform;
     }
 
+    void OnConnectedToServer () {
+        if (target == null) {
+            target = GameObject.FindGameObjectWithTag ("Player").transform;
+        }
+    }
+
     void Update () {
         // Follow character when spacebar is held
+        OnConnectedToServer ();
         FollowPlayer ();
         PanCamera ();
     }
