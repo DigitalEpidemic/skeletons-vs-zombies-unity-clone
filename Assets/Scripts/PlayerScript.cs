@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Assertions;
 
 public class PlayerScript : MonoBehaviour {
 
+    [SerializeField] private Transform bulletSpawnPoint;
+    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float shootDistance = 10f;
     private float nextFire;
     private float shootRate = 2f;
@@ -19,6 +22,8 @@ public class PlayerScript : MonoBehaviour {
 
 
     void Start () {
+        Assert.IsNotNull (bulletPrefab);
+        Assert.IsNotNull (bulletSpawnPoint);
         anim = GetComponent<Animator> ();
         navAgent = GetComponent<NavMeshAgent> ();
     }
@@ -89,7 +94,9 @@ public class PlayerScript : MonoBehaviour {
 
     void Fire () {
         anim.SetTrigger ("Attack");
-        //print ("FIRE!!");
+        GameObject fireball = Instantiate (bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation) as GameObject;
+        fireball.GetComponent<Rigidbody> ().velocity = fireball.transform.forward * 4f;
+        Destroy (fireball, 3.5f);
     }
 
 } // PlayerScript
