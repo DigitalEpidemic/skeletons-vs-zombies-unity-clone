@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Assertions;
+using UnityEngine.Networking;
 
-public class PlayerScript : MonoBehaviour {
+public class PlayerScript : NetworkBehaviour {
 
     [SerializeField] private Transform bulletSpawnPoint;
     [SerializeField] private GameObject bulletPrefab;
@@ -20,15 +21,29 @@ public class PlayerScript : MonoBehaviour {
     private Animator anim;
     private NavMeshAgent navAgent;
 
+    private Camera mainCam;
+
 
     void Start () {
         Assert.IsNotNull (bulletPrefab);
         Assert.IsNotNull (bulletSpawnPoint);
         anim = GetComponent<Animator> ();
         navAgent = GetComponent<NavMeshAgent> ();
+        mainCam = GameObject.Find ("Camera Thing").GetComponent<Camera> ();
     }
 
     void Update () {
+
+        if (isLocalPlayer) {
+            if (!mainCam.gameObject.activeInHierarchy) {
+                mainCam.gameObject.SetActive (true);
+            }
+        }
+
+        if (!isLocalPlayer) {
+            return;
+        }
+
         Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
         RaycastHit hit;
 

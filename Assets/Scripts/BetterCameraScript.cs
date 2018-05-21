@@ -6,52 +6,56 @@ using UnityEngine.Networking;
 public class BetterCameraScript : NetworkBehaviour {
 
     private Transform myTransform;
-    private Transform target;
-    public Vector3 offset = new Vector3 (0f, 0.6f, -0.5f);
     private bool justStarted;
+	public Vector3 offset = new Vector3 (0f, 0.6f, -0.5f);
     public float panSpeed = 4f;
+    private Transform target;
 
+    private Camera mainCam;
+    
     void Awake () {
-        //target = GameObject.FindGameObjectWithTag ("Player").transform;
         justStarted = true;
         LockMouse ();
     }
 
     void Start () {
         myTransform = this.transform;
+
+        // Deactivates all Cameras
+        mainCam = GameObject.Find("Camera Thing").GetComponent<Camera> ();
+        mainCam.gameObject.SetActive (false);
     }
 
-    void OnConnectedToServer () {
-        if (target == null) {
-            target = GameObject.FindGameObjectWithTag ("Player").transform;
-        }
+    public override void OnStartLocalPlayer () {
+        tag = "Player";
     }
 
     void Update () {
+        transform.eulerAngles = new Vector3 (0f, 0f, 0f);
+
         // Follow character when spacebar is held
-        OnConnectedToServer ();
-        FollowPlayer ();
-        PanCamera ();
+        //FollowPlayer ();
+        //PanCamera ();
     }
 
-    void FollowPlayer () {
-        if (Input.GetKey (KeyCode.Space)) {
-            if (target) {
-                myTransform.position = target.position + offset;
-                myTransform.LookAt (target.position, Vector3.up);
+    //void FollowPlayer () {
+    //    if (Input.GetKey (KeyCode.Space)) {
+    //        if (target) {
+    //            myTransform.position = target.position + offset;
+    //            myTransform.LookAt (target.position, Vector3.up);
 
-            }
-        }
+    //        }
+    //    }
 
-        if (justStarted) {
-            justStarted = false;
-            if (target) {
-                myTransform.position = target.position + offset;
-                myTransform.LookAt (target.position, Vector3.up);
+    //    if (justStarted) {
+    //        justStarted = false;
+    //        if (target) {
+    //            myTransform.position = target.position + offset;
+    //            myTransform.LookAt (target.position, Vector3.up);
 
-            }
-        }
-    }
+    //        }
+    //    }
+    //}
 
     void PanCamera () {
         // Pan with mouse
