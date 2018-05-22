@@ -10,6 +10,7 @@ public class PlayerScript : NetworkBehaviour {
     [SerializeField] private Transform bulletSpawnPoint;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float shootDistance = 10f;
+    [SerializeField] private GameObject playerCircle;
     private float nextFire;
     private float shootRate = 2f;
     private bool isAttacking = false;
@@ -22,18 +23,28 @@ public class PlayerScript : NetworkBehaviour {
     private NavMeshAgent navAgent;
 
     private Camera mainCam;
-
-
+    
     void Start () {
         Assert.IsNotNull (bulletPrefab);
         Assert.IsNotNull (bulletSpawnPoint);
+        Assert.IsNotNull (playerCircle);
+        
         anim = GetComponent<Animator> ();
         navAgent = GetComponent<NavMeshAgent> ();
-        mainCam = GameObject.Find ("Camera Thing").GetComponent<Camera> ();
+        //mainCam = GameObject.Find ("Camera Thing").GetComponent<Camera> ();
+
+        // Deactivates all Cameras
+        mainCam = this.transform.Find ("Player Camera").Find ("Camera Thing").GetComponent<Camera> ();
+        mainCam.gameObject.SetActive (false);
+    }
+
+    public override void OnStartLocalPlayer () {
+        playerCircle.SetActive (true);
+        tag = "Player";
+        
     }
 
     void Update () {
-
         if (isLocalPlayer) {
             if (!mainCam.gameObject.activeInHierarchy) {
                 mainCam.gameObject.SetActive (true);
@@ -100,17 +111,21 @@ public class PlayerScript : NetworkBehaviour {
             if (Time.time > nextFire) {
                 isAttacking = true;
                 nextFire = Time.time + shootRate;
-                Fire ();
+                CmdFire ();
             }
             navAgent.isStopped = true;
             running = false;
         }
     }
 
-    void Fire () {
+    [Command]
+    void CmdFire () {
         anim.SetTrigger ("Attack");
         GameObject fireball = Instantiate (bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation) as GameObject;
         fireball.GetComponent<Rigidbody> ().velocity = fireball.transform.forward * 4f;
+
+        NetworkServer.Spawn (fireball);
+
         Destroy (fireball, 3.5f);
     }
 

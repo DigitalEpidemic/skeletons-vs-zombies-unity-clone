@@ -21,13 +21,7 @@ public class BetterCameraScript : NetworkBehaviour {
     void Start () {
         myTransform = this.transform;
 
-        // Deactivates all Cameras
-        mainCam = GameObject.Find("Camera Thing").GetComponent<Camera> ();
-        mainCam.gameObject.SetActive (false);
-    }
-
-    public override void OnStartLocalPlayer () {
-        tag = "Player";
+        
     }
 
     void Update () {
