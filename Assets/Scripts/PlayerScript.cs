@@ -140,7 +140,7 @@ public class PlayerScript : NetworkBehaviour {
 
     void OnCollisionEnter (Collision target) {
         // CompareTag has better performance vs .tag
-        if (target.gameObject.CompareTag ("Bullet") && this.gameObject.CompareTag("Enemy")) {
+        if (target.gameObject.CompareTag ("Bullet")) {
 
             if (isLocalPlayer) {
                 Debug.Log ("Hit detected");
