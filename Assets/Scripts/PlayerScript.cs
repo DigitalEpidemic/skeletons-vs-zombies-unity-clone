@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Assertions;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class PlayerScript : NetworkBehaviour {
 
@@ -11,6 +12,8 @@ public class PlayerScript : NetworkBehaviour {
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float shootDistance = 10f;
     [SerializeField] private GameObject playerCircle;
+    [SerializeField] private Slider healthBar;
+
     private float nextFire;
     private float shootRate = 2f;
     private bool isAttacking = false;
@@ -23,15 +26,18 @@ public class PlayerScript : NetworkBehaviour {
     private NavMeshAgent navAgent;
 
     private Camera mainCam;
-    
+
+    [SyncVar] private int health = 100;
+    private int bulletDamage = 35;
+
     void Start () {
         Assert.IsNotNull (bulletPrefab);
         Assert.IsNotNull (bulletSpawnPoint);
         Assert.IsNotNull (playerCircle);
-        
+        Assert.IsNotNull (healthBar);
+
         anim = GetComponent<Animator> ();
         navAgent = GetComponent<NavMeshAgent> ();
-        //mainCam = GameObject.Find ("Camera Thing").GetComponent<Camera> ();
 
         // Deactivates all Cameras
         mainCam = this.transform.Find ("Player Camera").Find ("Camera Thing").GetComponent<Camera> ();
@@ -41,10 +47,13 @@ public class PlayerScript : NetworkBehaviour {
     public override void OnStartLocalPlayer () {
         playerCircle.SetActive (true);
         tag = "Player";
-        
+
     }
 
     void Update () {
+        healthBar.value = health;
+
+        // Activate local Camera
         if (isLocalPlayer) {
             if (!mainCam.gameObject.activeInHierarchy) {
                 mainCam.gameObject.SetActive (true);
@@ -127,6 +136,31 @@ public class PlayerScript : NetworkBehaviour {
         NetworkServer.Spawn (fireball);
 
         Destroy (fireball, 3.5f);
+    }
+
+    void OnCollisionEnter (Collision target) {
+        // CompareTag has better performance vs .tag
+        if (target.gameObject.CompareTag ("Bullet") && this.gameObject.CompareTag("Enemy")) {
+
+            if (isLocalPlayer) {
+                Debug.Log ("Hit detected");
+            }
+
+            TakeDamage ();
+        }
+    }
+
+    void TakeDamage () {
+        if (!isServer) {
+            return;
+        }
+
+        health -= bulletDamage;
+
+        if (health <= 0) {
+            health = 0;
+            Debug.Log ("Dead");
+        }
     }
 
 } // PlayerScript
