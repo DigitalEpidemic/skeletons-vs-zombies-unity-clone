@@ -5,21 +5,21 @@ using UnityEngine.Networking;
 
 public class BetterCameraScript : NetworkBehaviour {
 
-    private Transform myTransform;
-    private bool justStarted;
-	public Vector3 offset = new Vector3 (0f, 0.6f, -0.5f);
+    //private Transform myTransform;
+    //private bool justStarted;
+	//public Vector3 offset = new Vector3 (0f, 0.6f, -0.5f);
     public float panSpeed = 4f;
     private Transform target;
 
     private Camera mainCam;
     
     void Awake () {
-        justStarted = true;
+        //justStarted = true;
         LockMouse ();
     }
 
     void Start () {
-        myTransform = this.transform;
+        //myTransform = this.transform;
 
         
     }

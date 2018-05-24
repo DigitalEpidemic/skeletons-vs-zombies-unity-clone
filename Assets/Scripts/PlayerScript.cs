@@ -15,7 +15,7 @@ public class PlayerScript : NetworkBehaviour {
     [SerializeField] private Slider healthBar;
 
     private float nextFire;
-    private float shootRate = 2f;
+    private float shootRate = 2.567f;
     private bool isAttacking = false;
 
     private Transform targetedEnemy;
@@ -30,6 +30,8 @@ public class PlayerScript : NetworkBehaviour {
     [SyncVar] private int health = 100;
     private int bulletDamage = 35;
 
+    private NetworkAnimator networkAnim;
+
     void Start () {
         Assert.IsNotNull (bulletPrefab);
         Assert.IsNotNull (bulletSpawnPoint);
@@ -38,6 +40,7 @@ public class PlayerScript : NetworkBehaviour {
 
         anim = GetComponent<Animator> ();
         navAgent = GetComponent<NavMeshAgent> ();
+        networkAnim = GetComponent<NetworkAnimator> ();
 
         // Deactivates all Cameras
         mainCam = this.transform.Find ("Player Camera").Find ("Camera Thing").GetComponent<Camera> ();
@@ -120,7 +123,11 @@ public class PlayerScript : NetworkBehaviour {
             if (Time.time > nextFire) {
                 isAttacking = true;
                 nextFire = Time.time + shootRate;
-                CmdFire ();
+
+                anim.SetTrigger ("Attack");
+                networkAnim.SetTrigger ("Attack");
+                StartCoroutine (WaitForAttack ());
+
             }
             navAgent.isStopped = true;
             running = false;
@@ -129,7 +136,7 @@ public class PlayerScript : NetworkBehaviour {
 
     [Command]
     void CmdFire () {
-        anim.SetTrigger ("Attack");
+        
         GameObject fireball = Instantiate (bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation) as GameObject;
         fireball.GetComponent<Rigidbody> ().velocity = fireball.transform.forward * 4f;
 
@@ -138,12 +145,17 @@ public class PlayerScript : NetworkBehaviour {
         Destroy (fireball, 3.5f);
     }
 
+    IEnumerator WaitForAttack () {
+        yield return new WaitForSeconds (1.567f);
+        CmdFire ();
+    }
+
     void OnCollisionEnter (Collision target) {
         // CompareTag has better performance vs .tag
         if (target.gameObject.CompareTag ("Bullet")) {
 
             if (isLocalPlayer) {
-                Debug.Log ("Hit detected");
+                //Debug.Log ("Hit detected");
             }
 
             TakeDamage ();
